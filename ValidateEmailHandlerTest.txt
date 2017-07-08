@@ -1,0 +1,50 @@
+@isTest
+public class ValidateEmailHandlerTest{
+    
+    @testSetup static void setup() {
+        System.debug('In Test set up::');
+        // Create common test accounts
+        List<Account> lstTestAccounts = new List<Account>();
+        List<Contact> lstTestContacts = new List<Contact>();
+        for(Integer index = 0 ; index < 2; index++) {
+            lstTestAccounts.add(new Account(Name = 'TestAccount '+index));
+        }
+        insert lstTestAccounts;  
+        for(Integer index=0;index<5;index++) {
+            if(index<3)
+            	lstTestContacts.add(new Contact(LastName = 'TestContact '+index,AccountId=lstTestAccounts[0].Id,Email='TestContact'+index+'@gmail.com'));
+            else
+				lstTestContacts.add(new Contact(LastName = 'TestContact '+index,AccountId=lstTestAccounts[1].Id,Email='TestContact'+index+'@gmail.com'));                
+        }
+        insert lstTestContacts;  
+        for(contact contact : lstTestContacts){
+            system.assert(contact.Id!=null);
+        }
+    }
+    
+    public static testmethod void InputContactsWithDuplicatesEmail(){
+        List<Contact> lstContacts = [SELECT LastName, Email FROM Contact WHERE LastName LIKE 'TestContact%'];
+        lstContacts[0].Email = 'test1@gmail.com';
+        lstContacts[1].Email = 'test1@gmail.com';
+        try{
+            update lstContacts;
+            System.assert(false, 'Exception expected');
+        }catch(exception e){
+            Boolean expectedExceptionThrown =  e.getMessage().contains('Contact List Contains Duplicate Record') ? true : false;
+            System.AssertEquals(expectedExceptionThrown, true);
+        }
+    }
+    public static testmethod void ContactsExistingInDatabase()
+    {
+    	List<Contact> lstContacts = new List<Contact>();
+	    lstContacts.add(new Contact(LastName='Contact11',Email='krishna12345689.tupe@tupe.com'));
+    	lstContacts.add(new Contact(LastName='Contact12',Email='krish14555.tupe@tupe.com'));
+    	lstContacts.add(new Contact(LastName='Contact13',Email='krishana1.tupe@tupe.com'));
+    	lstContacts.add(new Contact(LastName='Contact14',Email='k1.tupe@tupe.com'));
+    	insert lstContacts;
+        for(contact contact : lstContacts){
+            system.assert(contact.Id!=null);
+        }
+    }   
+}
+         

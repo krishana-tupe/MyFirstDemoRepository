@@ -1,0 +1,95 @@
+trigger ContactTrigger on Contact (before insert,before update) {
+   
+    if(Trigger.isInsert)
+    {
+        if(Trigger.isBefore)
+        {
+            System.debug('Insert Before-->Trigger.New::'+Trigger.NewMap);
+            
+        }
+        if(Trigger.isAfter)
+        {            
+            
+        }
+    }
+	if(Trigger.isUpdate)
+    {
+        if(Trigger.isBefore)
+        {
+            System.debug('Update Before-->Trigger.New::'+Trigger.New);
+        }
+        if(Trigger.isAfter)
+        {            
+            
+        }
+    }
+    if(Trigger.isDelete)
+    {
+        if(Trigger.isBefore)
+        {
+            
+        }
+        if(Trigger.isAfter)
+        {            
+            
+        }
+    }
+}
+
+Insert
+
+List<Contact> lstContacts = new List<Contact>();
+lstContacts.add(new Contact(LastName='Tupe123'));
+lstContacts.add(new Contact(LastName='Tupe123'));
+insert lstContacts;
+
+
+Update
+
+Contact cn=new Contact();
+cn= [SELECT LastName,	Department FROM Contact
+     WHERE LastName='Tupe123'  LIMIT 1];
+cn.Department='Kru';
+update cn;
+
+Delete
+
+List<Contact> lstContact =new List<Contact>();
+contact cn=new Contact();
+cn= [SELECT LastName,Id FROM Contact 
+     WHERE LastName='Tupe123' LIMIT 1];
+lstContact.add(cn);
+//.Department='IT';*/
+delete lstContact;
+
+undelete
+
+Contact a = new Contact(LastName='Universal Containers');
+insert(a);
+
+delete a;
+
+contact[] savedAccts = [SELECT Id, Name FROM contact WHERE Name = 'Universal Containers' ALL ROWS]; 
+
+    undelete savedAccts;
+
+Insert Multiple Emails
+List<Contact> lstContacts = new List<Contact>();
+lstContacts.add(new Contact(LastName='Contact1',Email='krishana1.tupe@enzigma.com'));
+lstContacts.add(new Contact(LastName='Contact2',Email='krish.tupe@enzigma.com'));
+lstContacts.add(new Contact(LastName='Contact3',Email='krishana12345.tupe@enzigma.com'));
+lstContacts.add(new Contact(LastName='Contact4',Email='krishana1234.tupe@enzigma.com'));
+insert lstContacts;
+
+trigger ValidateEmail on Contact (before insert,before update) {
+
+     if(Trigger.isInsert||Trigger.isUpdate)
+      for(contact a:trigger.new)
+     {
+         Integer count=[SELECT count() FROM contact WHERE email=:a.email];
+         if(count>0)
+          {
+                 a.Email.adderror('This email already exists please try NEW ONE ::'+'  ' +a.email);
+          }
+     }
+}

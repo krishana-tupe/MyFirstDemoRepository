@@ -1,0 +1,88 @@
+trigger UpdateJob on Candidate__c (before insert, after update ) {
+if(Trigger.isInsert || Trigger.isUpdate || Trigger.isDelete)
+{
+   	//System.debug('trigger UpdateJob on Candidate__c Invoked');
+    UpdateJobHandler.addNewCandidate(Trigger.New);
+       
+}
+}
+
+			UpdateJobHandler
+
+public class UpdateJobHandler {
+
+    public static void addNewCandidate(List<Candidate__c> newContact)
+    {
+        set <string> objJobStatus =new set<string>();
+   		//List<Job__c> dbData=new List<Job__c>();
+        Job__c objJob= new Job__c();
+
+     for(Candidate__c  objCandidate:newContact)         
+     {
+        objJobStatus.add(objCandidate.JobName__c);
+     }
+       // string Id = [SELECT id from Job__c where JobName__c IN:objJobStatus];
+			System.debug('DATA ID :: '+ objJobStatus); 
+        
+        	/*string Jobn=String.valueOf(objJobStatus);
+        	Id i=ID.valueOf(Jobn);
+        	System.debug('JOBNAME:: '+ Jobn); 
+        */
+        
+       
+        
+          objJob=[SELECT Active__c, No_of_Positions__c, Hired_Applicants__c,JobName__c FROM Job__c WHERE Id IN:objJobStatus LIMIT 1 ];
+          
+           Integer numPosition= (Integer) objJob.No_of_Positions__c;
+         Integer numHired= (Integer) objJob.Hired_Applicants__c;
+    		//System.debug('What is In String ObjJOb Status:: '+objJobStatus);
+            System.debug('List Database Data :: '+ objJob);
+          	System.debug('Number Of Position :: '+ numPosition);
+          	System.debug('Number Of Hired :: '+ numHired);
+     
+        
+    		if( objJob.Active__c==false)
+         {
+            Trigger.New[0].addError('Job Is Deactivated !!!!');
+            Trigger.New[0].addError('Erro  You can not apply for deactivated job');
+         }
+        
+     	if(objJob.Active__c==true)
+         {
+             if(numHired>=numPosition)
+             {
+                objJob.Active__c = false;
+                 update objJob; 
+             }
+            if(numHired==numPosition)
+            {                            
+                 
+            // Trigger.New[0].addError('Erro  You can not apply for This job');
+             system.debug('Job Is Deactivated !!!!');
+            }
+         
+              else
+             {
+                 objJob.Active__c = true;
+                  update objJob;
+               system.debug('You can apply for  job !!!!!');  
+             }
+         }
+                               
+         }
+            
+         }
+    
+       
+     }
+
+
+ TestData For  UpdateJobHandler
+
+List<Candidate__c> lstCandidates = new List<Candidate__c>();
+//Date myDate = Date.newInstance(1995, 6, 03);
+lstCandidates.add(new Candidate__c(Name='Krishana',	First_Name__c='Krishana',Last_Name__c='Tupe',JobName__c='a016A000001plqO',Expected_Salary__c=10000,Email__c='krishana1.tupe@enzigma.com'));
+
+insert lstCandidates;
+
+
