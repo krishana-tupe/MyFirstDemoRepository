@@ -1,0 +1,84 @@
+@isTest
+public class ValidateEmailHandlerTest{
+    
+    @testSetup static void setup() {
+        System.debug('In Test set up::');
+        // Create common test accounts
+        List<Account> lstTestAccounts = new List<Account>();
+        List<Contact> lstTestContacts = new List<Contact>();
+        for(Integer index = 0 ; index < 2; index++) {
+            lstTestAccounts.add(new Account(Name = 'TestAccount '+index));
+        }
+        insert lstTestAccounts;  
+        for(Integer index=0;index<5;index++) {
+            if(index<3)
+            	lstTestContacts.add(new Contact(LastName = 'TestContact1 '+index,AccountId=lstTestAccounts[0].Id,Email='TestContact1'+index+'@gmail.com'));
+            else
+				lstTestContacts.add(new Contact(LastName = 'TestContact1 '+index,AccountId=lstTestAccounts[1].Id,Email='TestContact1'+index+'@gmail.com'));                
+        }
+        insert lstTestContacts;  
+        for(contact contact : lstTestContacts){
+            system.assert(contact.Id!=null);
+        }
+    }
+    
+    public static testmethod void InputContactsWithDuplicatesEmail(){
+        List<Contact> lstContacts = [SELECT LastName, Email FROM Contact WHERE LastName LIKE 'TestContact1%'];
+        lstContacts[0].Email = 'test111@gmail.com';
+        lstContacts[1].Email = 'test111@gmail.com';
+        try{
+            update lstContacts;
+            System.assert(false, 'Exception expected');
+        }catch(exception e){
+            Boolean expectedExceptionThrown =  e.getMessage().contains('Contact List Contains Duplicate Record') ? true : false;
+            System.AssertEquals(expectedExceptionThrown, true);
+        }
+    }
+    
+    public static testmethod void ContactsExistingInDatabase()
+    {
+    	List<Contact> lstContacts = [SELECT LastName, Email FROM Contact WHERE LastName LIKE 'TestContact%'];
+        lstContacts[0].Email = 'TestContact10@gmail.com';
+        lstContacts[1].Email = 'TestContact11@gmail.com';
+        try{
+            update lstContacts;
+            System.assert(false, 'Exception expected');
+        }catch(exception e){
+            Boolean expectedExceptionThrown =  e.getMessage().contains('Contact List Contains Duplicate Record IN DATABASE') ? true : false;
+            System.AssertEquals(expectedExceptionThrown, true);
+        }
+       
+    }
+        
+    public static testmethod void ContactsWithNullEmails()
+        {
+            List<Contact> lstContacts = [SELECT LastName, Email FROM Contact WHERE LastName LIKE 'TestContact%'];
+        lstContacts[0].Email = '';
+        lstContacts[1].Email = '';
+       
+      
+        try{
+            update lstContacts;
+            System.assert(false, 'Exception expected');
+        }catch(exception e){
+            Boolean expectedExceptionThrown =  e.getMessage().contains('Contact List Contains Null Records') ? true : false;
+            System.AssertEquals(expectedExceptionThrown, true);
+        }
+
+
+        try{
+            update lstContacts;
+            System.assert(false, 'Exception expected');
+        }catch(exception e){
+            Boolean expectedExceptionThrown =  e.getMessage().contains('Contact List Contains Null Records') ? true : false;
+            System.AssertEquals(expectedExceptionThrown, true);
+        }
+
+
+
+            
+            
+            
+        }
+       
+}
