@@ -64,6 +64,7 @@ public class ValidateEmailHandlerTest{
             Boolean expectedExceptionThrown =  e.getMessage().contains('Contact List Contains Null Records') ? true : false;
             System.AssertEquals(expectedExceptionThrown, true);
         }
+<<<<<<< HEAD
 
 
         try{
@@ -83,6 +84,8 @@ public class ValidateEmailHandlerTest{
             System.AssertEquals(expectedExceptionThrown, true);
         }
 
+=======
+>>>>>>> a8fa82e7118950a738df895a7302801f42990079
             
             
             
