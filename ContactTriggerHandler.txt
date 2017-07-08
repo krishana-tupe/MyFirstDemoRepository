@@ -75,6 +75,13 @@ public class ValidateEmailHandlerTest{
         }
 
 
+   try{
+            update lstContacts;
+            System.assert(false, 'Exception expected');
+        }catch(exception e){
+            Boolean expectedExceptionThrown =  e.getMessage().contains('Contact List Contains Null Records') ? true : false;
+            System.AssertEquals(expectedExceptionThrown, true);
+        }
 
             
             
